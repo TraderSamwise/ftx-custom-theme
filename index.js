@@ -1,7 +1,3 @@
-// ==UserScript==
-// @name         FTX Custom Theme
-// @namespace    http://github.com/tradersamwise/
-// @version      1.0.1
 // @description  Custom theme for FTX
 // @author       @TraderSamwise
 // @match        https://ftx.com/*
@@ -21,6 +17,7 @@ const SHOW_BTC_PNL = true;
 const BTC_PNL_PRECISION = 4;
 const BTC_SUFFIX = "₿";
 const SHOW_PNL_PERCENT = true;
+const PNL_PERCENT_PRECISION = 2;
 
 // set specific style
 function addGlobalStyle(css) {
@@ -105,7 +102,7 @@ function convertPnlHelper() {
     if (SHOW_PNL_PERCENT) {
       let formattedNotionalSize = rows[i].children[3].innerText;
       let rawNotionalSize = parseNotionalString(formattedNotionalSize);
-      percentagePnl = (rawPnl / rawNotionalSize * 100).toFixed(4);
+      percentagePnl = (rawPnl / rawNotionalSize * 100).toFixed(PNL_PERCENT_PRECISION);
       totalNotional += rawNotionalSize;
     }
 
@@ -134,7 +131,7 @@ function convertPnlHelper() {
     }
 
     if (SHOW_PNL_PERCENT) {
-      let totalPercentagePnl = (totalUsdPnl / totalNotional * 100).toFixed(4);
+      let totalPercentagePnl = (totalUsdPnl / totalNotional * 100).toFixed(PNL_PERCENT_PRECISION);
       pnlRowHeader.innerHTML = "<span style=\"white-space: nowrap; font-size: 0.875rem; font-weight: 700; color: " + pnlColor + "; \"> " + formattedUsdTotal + "&ensp;  | &ensp;" + formattedBtcTotal + "&ensp;  | &ensp;" + totalPercentagePnl + "% </span>";
     }
     else {
