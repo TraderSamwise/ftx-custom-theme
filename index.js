@@ -68,21 +68,13 @@ let updating = false;
 function convertPnlHelper() {
   let rows = document.getElementsByClassName("MuiTableBody-root")[3].children;
   let totalUsd = 0;
+  let totalPnlPercentage = 0;
   for (var i = 0; i < rows.length; i++) {
+    let notionalSize = rows[i].children[3];
+    let usDollarSize = notionalSize.innerText.toString().split('US')[0].trim();
+    usDollarSize = parseFloat(usDollarSize.replace(',', '.'));
     let pnlCell = rows[i].children[6].children[0];
     let formattedPnl = pnlCell.innerText;
-
-    // for testing
-
-    // if (!formattedPnl.includes("|")) {
-    //     formattedPnl = formattedPnl.replace(/\./g, '_');
-    //     formattedPnl = formattedPnl.replace(/,/g, '.');
-    //     formattedPnl = formattedPnl.replace(/_/g, ',');
-    //     formattedPnl = formattedPnl.replace(/\$/g, 'US$ ');
-    //     pnlCell.innerText = formattedPnl;
-    // }
-
-    // we have to take into account a bunch of different USD formats for different locals. 
     let rawPnl;
     rawPnl = formattedPnl.split("|")[0];
     rawPnl = rawPnl.replace(/\./g, '');
@@ -94,31 +86,31 @@ function convertPnlHelper() {
     rawPnl = rawPnl.trim()
     rawPnl = rawPnl.substr(0, rawPnl.length - 2) + "." + rawPnl.substr(rawPnl.length - 2, rawPnl.length);
     rawPnl = parseFloat(rawPnl);
-
-    // accumulate total usd value of pnl
     totalUsd += rawPnl;
-
-    // if this is not already a formatted cell, make it one
+    let percentagePnl = (rawPnl / usDollarSize * 100).toFixed(4);
+    totalPnlPercentage += parseFloat(percentagePnl);
     if (!formattedPnl.includes("|")) {
       let btcPnl = (rawPnl / btcPrice);
       let formattedPnlBtc = btcPnl.toFixed(BTC_PNL_PRECISION)
-      pnlCell.innerHTML = pnlCell.innerText + "&ensp;  | &ensp;" + formattedPnlBtc + " " + BTC_SUFFIX;
+
+      pnlCell.innerHTML = pnlCell.innerText + "&ensp;  | &ensp;" + formattedPnlBtc + " " + BTC_SUFFIX  + "&ensp;  | &ensp;" + percentagePnl + ' %';
       pnlCell.style["white-space"] = "nowrap";
     }
 
   }
+
   // if we have any open positions, add total to row header
   if (rows.length > 0) {
     let formattedBtcTotal = (totalUsd / btcPrice).toFixed(BTC_PNL_PRECISION) + " " + BTC_SUFFIX;
     let formattedUsdTotal = formatter.format(totalUsd);
-    let pnlRowHeader = document.getElementsByClassName("MuiTableRow-head")[3].children[6];
+    let pnlRowHeader = document.getElementsByClassName("MuiTableRow-head")[2].children[6];
     pnlRowHeader.style["padding-top"] = "5px";
     pnlRowHeader.style["padding-bottom"] = "5px";
     let pnlColor = "#02C77A";
     if (totalUsd < 0) {
       pnlColor = "#FF3B69"
     }
-    pnlRowHeader.innerHTML = "<span style=\"white-space: nowrap; font-size: 0.875rem; font-weight: 700; color: " + pnlColor + "; \"> " + formattedUsdTotal + "&ensp;  | &ensp;" + formattedBtcTotal + " </span>";
+    pnlRowHeader.innerHTML = "<span style=\"white-space: nowrap; font-size: 0.875rem; font-weight: 700; color: " + pnlColor + "; \"> " + formattedUsdTotal + "&ensp;  | &ensp;" + formattedBtcTotal  + "&ensp;  | &ensp;" +  totalPnlPercentage.toFixed(4) + " % </span>";
   }
 }
 
