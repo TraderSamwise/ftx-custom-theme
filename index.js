@@ -66,7 +66,7 @@ var formatter = new Intl.NumberFormat(undefined, {
 let updating = false;
 
 function convertPnlHelper() {
-  let rows = document.getElementsByClassName("MuiTableBody-root")['3'].children;
+  let rows = document.getElementsByClassName("MuiTableBody-root")[3].children;
   let totalUsd = 0;
   let totalPnlPercentage = 0;
   for (var i = 0; i < rows.length; i++) {
@@ -86,7 +86,6 @@ function convertPnlHelper() {
     rawPnl = rawPnl.trim()
     rawPnl = rawPnl.substr(0, rawPnl.length - 2) + "." + rawPnl.substr(rawPnl.length - 2, rawPnl.length);
     rawPnl = parseFloat(rawPnl);
-
     totalUsd += rawPnl;
     let percentagePnl = (rawPnl / usDollarSize * 100).toFixed(4);
     totalPnlPercentage += parseFloat(percentagePnl);
@@ -99,6 +98,7 @@ function convertPnlHelper() {
     }
 
   }
+
   // if we have any open positions, add total to row header
   if (rows.length > 0) {
     let formattedBtcTotal = (totalUsd / btcPrice).toFixed(BTC_PNL_PRECISION) + " " + BTC_SUFFIX;
@@ -119,7 +119,7 @@ function convertPnl() {
   // only update once we have fetched btc price
   if (!updating && btcPrice) {
     updating = true;
-    const table = document.getElementsByClassName("MuiTableBody-root")['3'];
+    const table = document.getElementsByClassName("MuiTableBody-root")[3];
     table.removeEventListener("DOMSubtreeModified", convertPnl);
     try {
       convertPnlHelper();
@@ -164,7 +164,7 @@ function convertPnl() {
       const table = document.getElementsByClassName("MuiTableBody-root")[3];
       table.addEventListener("DOMSubtreeModified", convertPnl);
       convertPnl();
-      document.getElementsByClassName("MuiButtonBase-root MuiTab-root MuiTab-textColorInherit Mui-selected MuiTab-fullWidth")['3'].children[0].addEventListener("click", function () {
+      document.getElementsByClassName("MuiButtonBase-root MuiTab-root MuiTab-textColorInherit Mui-selected MuiTab-fullWidth")[3].children[0].addEventListener("click", function () {
         setTimeout(function () {
           convertPnl();
         }, 200)
