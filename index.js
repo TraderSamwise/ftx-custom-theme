@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FTX Custom Theme
 // @namespace    http://github.com/tradersamwise/
-// @version      0.9
+// @version      1.0.0
 // @description  Custom theme for FTX
 // @author       @TraderSamwise
 // @match        https://ftx.com/*
@@ -20,6 +20,7 @@ const TABLE_HEADER_COLOR = '#0a1f1f';
 const SHOW_BTC_PNL = true;
 const BTC_PNL_PRECISION = 4;
 const BTC_SUFFIX = "₿";
+const SHOW_PNL_PERCENT = true;
 
 // set specific style
 function addGlobalStyle(css) {
@@ -44,12 +45,10 @@ function fetchBtcPrice() {
     .then(data => {
       btcPrice = data.result.price;
     }).catch((error) => {
-      console.log(error)
+      console.log(error);
     });
   // recheck every 10 minutes
-  setTimeout(function () {
-    fetchBtcPrice
-  }, 1000 * 60 * 10);
+  setTimeout(fetchBtcPrice, 1000 * 60 * 10);
 }
 
 // US Number Formatter
@@ -62,55 +61,85 @@ var formatter = new Intl.NumberFormat(undefined, {
   //maximumFractionDigits: 0, // (causes 2500.99 to be printed as $2,501)
 });
 
+// function to parse USD notional string value for all possible locals and formats
+function parseNotionalString(val) {
+  val = val.replace(/\./g, '');
+  val = val.replace(/,/g, '');
+  val = val.replace(/US\$/g, '');
+  val = val.replace(/USD/g, '');
+  val = val.replace(/ /g, '');
+  val = val.replace(/\$/g, '');
+  val = val.trim()
+  val = val.substr(0, val.length - 2) + "." + val.substr(val.length - 2, val.length);
+  val = parseFloat(val);
+  return val;
+}
+
 // whether we are currently updating the table
 let updating = false;
 
+// converts pnl for all rows and updates the cells and the top header row
 function convertPnlHelper() {
   let rows = document.getElementsByClassName("MuiTableBody-root")[3].children;
-  let totalUsd = 0;
-  let totalPnlPercentage = 0;
+  let totalUsdPnl = 0;
+  let totalNotional = 0;
   for (var i = 0; i < rows.length; i++) {
-    let notionalSize = rows[i].children[3];
-    let usDollarSize = notionalSize.innerText.toString().split('US')[0].trim();
-    usDollarSize = parseFloat(usDollarSize.replace(',', '.'));
     let pnlCell = rows[i].children[6].children[0];
     let formattedPnl = pnlCell.innerText;
-    let rawPnl;
-    rawPnl = formattedPnl.split("|")[0];
-    rawPnl = rawPnl.replace(/\./g, '');
-    rawPnl = rawPnl.replace(/,/g, '');
-    rawPnl = rawPnl.replace(/US\$/g, '');
-    rawPnl = rawPnl.replace(/USD/g, '');
-    rawPnl = rawPnl.replace(/ /g, '');
-    rawPnl = rawPnl.replace(/\$/g, '');
-    rawPnl = rawPnl.trim()
-    rawPnl = rawPnl.substr(0, rawPnl.length - 2) + "." + rawPnl.substr(rawPnl.length - 2, rawPnl.length);
-    rawPnl = parseFloat(rawPnl);
-    totalUsd += rawPnl;
-    let percentagePnl = (rawPnl / usDollarSize * 100).toFixed(4);
-    totalPnlPercentage += parseFloat(percentagePnl);
+
+    // USED FOR TESTING! DO NOT DELETE
+
+    // if (!formattedPnl.includes("|")) {
+    //     formattedPnl = formattedPnl.replace(/\./g, '_');
+    //     formattedPnl = formattedPnl.replace(/,/g, '.');
+    //     formattedPnl = formattedPnl.replace(/_/g, ',');
+    //     formattedPnl = formattedPnl.replace(/\$/g, 'US$ ');
+    //     pnlCell.innerText = formattedPnl;
+    // }
+
+    formattedPnl = formattedPnl.split("|")[0];
+    let rawPnl = parseNotionalString(formattedPnl)
+    totalUsdPnl += rawPnl;
+
+    let percentagePnl;
+    if (SHOW_PNL_PERCENT) {
+      let formattedNotionalSize = rows[i].children[3].innerText;
+      let rawNotionalSize = parseNotionalString(formattedNotionalSize);
+      percentagePnl = (rawPnl / rawNotionalSize * 100).toFixed(4);
+      totalNotional += rawNotionalSize;
+    }
+
     if (!formattedPnl.includes("|")) {
       let btcPnl = (rawPnl / btcPrice);
       let formattedPnlBtc = btcPnl.toFixed(BTC_PNL_PRECISION)
 
-      pnlCell.innerHTML = pnlCell.innerText + "&ensp;  | &ensp;" + formattedPnlBtc + " " + BTC_SUFFIX  + "&ensp;  | &ensp;" + percentagePnl + ' %';
+      pnlCell.innerHTML = pnlCell.innerText + "&ensp;  | &ensp;" + formattedPnlBtc + " " + BTC_SUFFIX;
+      if (SHOW_PNL_PERCENT) {
+        pnlCell.innerHTML += "&ensp;  | &ensp;" + percentagePnl + ' %';
+      }
       pnlCell.style["white-space"] = "nowrap";
     }
 
   }
-
   // if we have any open positions, add total to row header
   if (rows.length > 0) {
-    let formattedBtcTotal = (totalUsd / btcPrice).toFixed(BTC_PNL_PRECISION) + " " + BTC_SUFFIX;
-    let formattedUsdTotal = formatter.format(totalUsd);
-    let pnlRowHeader = document.getElementsByClassName("MuiTableRow-head")[2].children[6];
+    let formattedBtcTotal = (totalUsdPnl / btcPrice).toFixed(BTC_PNL_PRECISION) + " " + BTC_SUFFIX;
+    let formattedUsdTotal = formatter.format(totalUsdPnl);
+    let pnlRowHeader = document.getElementsByClassName("MuiTableRow-head")[3].children[6];
     pnlRowHeader.style["padding-top"] = "5px";
     pnlRowHeader.style["padding-bottom"] = "5px";
     let pnlColor = "#02C77A";
-    if (totalUsd < 0) {
+    if (totalUsdPnl < 0) {
       pnlColor = "#FF3B69"
     }
-    pnlRowHeader.innerHTML = "<span style=\"white-space: nowrap; font-size: 0.875rem; font-weight: 700; color: " + pnlColor + "; \"> " + formattedUsdTotal + "&ensp;  | &ensp;" + formattedBtcTotal  + "&ensp;  | &ensp;" +  totalPnlPercentage.toFixed(4) + " % </span>";
+
+    if (SHOW_PNL_PERCENT) {
+      let totalPercentagePnl = (totalUsdPnl / totalNotional * 100).toFixed(4);
+      pnlRowHeader.innerHTML = "<span style=\"white-space: nowrap; font-size: 0.875rem; font-weight: 700; color: " + pnlColor + "; \"> " + formattedUsdTotal + "&ensp;  | &ensp;" + formattedBtcTotal + "&ensp;  | &ensp;" + totalPercentagePnl + "% </span>";
+    }
+    else {
+      pnlRowHeader.innerHTML = "<span style=\"white-space: nowrap; font-size: 0.875rem; font-weight: 700; color: " + pnlColor + "; \"> " + formattedUsdTotal + "&ensp;  | &ensp;" + formattedBtcTotal + "</span>";
+    }
   }
 }
 
