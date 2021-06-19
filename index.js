@@ -1,3 +1,7 @@
+// ==UserScript==
+// @name         FTX Custom Theme
+// @namespace    http://github.com/tradersamwise/
+// @version      1.0.3
 // @description  Custom theme for FTX
 // @author       @TraderSamwise
 // @match        https://ftx.com/*
@@ -112,7 +116,7 @@ function convertPnlHelper() {
 
       pnlCell.innerHTML = pnlCell.innerText + "&ensp;  | &ensp;" + formattedPnlBtc + " " + BTC_SUFFIX;
       if (SHOW_PNL_PERCENT) {
-        pnlCell.innerHTML += "&ensp;  | &ensp;" + percentagePnl + ' %';
+        pnlCell.innerHTML += "&ensp;  | &ensp;" + percentagePnl + '%';
       }
       pnlCell.style["white-space"] = "nowrap";
     }
