@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FTX Custom Theme
 // @namespace    http://github.com/tradersamwise/
-// @version      1.0.0
+// @version      1.0.1
 // @description  Custom theme for FTX
 // @author       @TraderSamwise
 // @match        https://ftx.com/*
@@ -97,8 +97,8 @@ function convertPnlHelper() {
     //     pnlCell.innerText = formattedPnl;
     // }
 
-    formattedPnl = formattedPnl.split("|")[0];
-    let rawPnl = parseNotionalString(formattedPnl)
+    let rawPnl = formattedPnl.split("|")[0];
+    rawPnl = parseNotionalString(rawPnl)
     totalUsdPnl += rawPnl;
 
     let percentagePnl;
