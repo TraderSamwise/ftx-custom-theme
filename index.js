@@ -103,14 +103,15 @@ function convertPnlHelper() {
   if (rows.length > 0) {
     let formattedBtcTotal = (totalUsd / btcPrice).toFixed(BTC_PNL_PRECISION) + " " + BTC_SUFFIX;
     let formattedUsdTotal = formatter.format(totalUsd);
-    let pnlRowHeader = document.getElementsByClassName("MuiTableRow-head")[2].children[6];
+    let pnlRowHeader = document.querySelector('[title="PnL since you were last flat"]');
     pnlRowHeader.style["padding-top"] = "5px";
     pnlRowHeader.style["padding-bottom"] = "5px";
     let pnlColor = "#02C77A";
     if (totalUsd < 0) {
       pnlColor = "#FF3B69"
     }
-    pnlRowHeader.innerHTML = "<span style=\"white-space: nowrap; font-size: 0.875rem; font-weight: 700; color: " + pnlColor + "; \"> " + formattedUsdTotal + "&ensp;  | &ensp;" + formattedBtcTotal  + "&ensp;  | &ensp;" +  totalPnlPercentage.toFixed(4) + " % </span>";
+      // i add title as a prop to span bc when looping again if we want to fetch pnlRowHeader again querySelector will try to find again for this title "prop", otherwise it wouldnt find anything.
+    pnlRowHeader.innerHTML = "<span title='PnL since you were last flat' style=\"white-space: nowrap; font-size: 0.875rem; font-weight: 700; color: " + pnlColor + "; \"> " + formattedUsdTotal + "&ensp;  | &ensp;" + formattedBtcTotal  + "&ensp;  | &ensp;" +  totalPnlPercentage.toFixed(4) + " % </span>";
   }
 }
 
@@ -119,7 +120,7 @@ function convertPnl() {
   // only update once we have fetched btc price
   if (!updating && btcPrice) {
     updating = true;
-    const table = document.getElementsByClassName("MuiTableBody-root")[3];
+    let table = document.getElementsByClassName("MuiTableBody-root")[3];
     table.removeEventListener("DOMSubtreeModified", convertPnl);
     try {
       convertPnlHelper();
