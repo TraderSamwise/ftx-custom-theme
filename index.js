@@ -126,7 +126,7 @@ function convertPnlHelper() {
   if (rows.length > 0) {
     let formattedBtcTotal = (totalUsdPnl / btcPrice).toFixed(BTC_PNL_PRECISION) + " " + BTC_SUFFIX;
     let formattedUsdTotal = formatter.format(totalUsdPnl);
-    let pnlRowHeader = document.getElementsByClassName("MuiTableRow-head")[3].children[6];
+    let pnlRowHeader = document.querySelector('[title="PnL since you were last flat"]');
     pnlRowHeader.style["padding-top"] = "5px";
     pnlRowHeader.style["padding-bottom"] = "5px";
     let pnlColor = "#02C77A";
@@ -136,10 +136,10 @@ function convertPnlHelper() {
 
     if (SHOW_PNL_PERCENT) {
       let totalPercentagePnl = (totalUsdPnl / totalNotional * 100).toFixed(PNL_PERCENT_PRECISION);
-      pnlRowHeader.innerHTML = "<span style=\"white-space: nowrap; font-size: 0.875rem; font-weight: 700; color: " + pnlColor + "; \"> " + formattedUsdTotal + "&ensp;  | &ensp;" + formattedBtcTotal + "&ensp;  | &ensp;" + totalPercentagePnl + "% </span>";
+      pnlRowHeader.innerHTML = "<span title='PnL since you were last flat' style=\"white-space: nowrap; font-size: 0.875rem; font-weight: 700; color: " + pnlColor + "; \"> " + formattedUsdTotal + "&ensp;  | &ensp;" + formattedBtcTotal + "&ensp;  | &ensp;" + totalPercentagePnl + "% </span>";
     }
     else {
-      pnlRowHeader.innerHTML = "<span style=\"white-space: nowrap; font-size: 0.875rem; font-weight: 700; color: " + pnlColor + "; \"> " + formattedUsdTotal + "&ensp;  | &ensp;" + formattedBtcTotal + "</span>";
+      pnlRowHeader.innerHTML = "<span title='PnL since you were last flat' style=\"white-space: nowrap; font-size: 0.875rem; font-weight: 700; color: " + pnlColor + "; \"> " + formattedUsdTotal + "&ensp;  | &ensp;" + formattedBtcTotal + "</span>";
     }
   }
 }
@@ -149,7 +149,7 @@ function convertPnl() {
   // only update once we have fetched btc price
   if (!updating && btcPrice) {
     updating = true;
-    const table = document.getElementsByClassName("MuiTableBody-root")[3];
+    let table = document.getElementsByClassName("MuiTableBody-root")[3];
     table.removeEventListener("DOMSubtreeModified", convertPnl);
     try {
       convertPnlHelper();
