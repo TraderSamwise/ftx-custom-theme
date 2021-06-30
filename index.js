@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         FTX Custom Theme
 // @namespace    http://github.com/tradersamwise/
-// @version      1.0.3
+// @version      1.0.0
 // @description  Custom theme for FTX
 // @author       @TraderSamwise
 // @match        https://ftx.com/*
