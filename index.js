@@ -3,7 +3,7 @@
 // @namespace    http://github.com/tradersamwise/
 // @version      1.0.3
 // @description  Custom theme for FTX
-// @author       @TraderSamwise - @Ataberkgenc
+// @author       @TraderSamwise
 // @match        https://ftx.com/*
 // @icon         https://www.google.com/s2/favicons?domain=tampermonkey.net
 // @grant        none
